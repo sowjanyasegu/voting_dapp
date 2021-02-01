@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <title>Hello World DApp</title>
+ <link rel="shortcut icon" href="#" />
+ <link href='https://fonts.googleapis.com/css?family=Open Sans:400,700' rel='stylesheet' type='text/css'>
+ <link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' rel='stylesheet' type='text/css'>
+</head>
+<body class="container">
+ <h1>A Simple Hello World Voting Application</h1>
+ <div class="table-responsive">
+  <table class="table table-bordered">
+   <thead>
+    <tr>
+     <th>CandidateId</th>   
+     <th>Candidate</th>
+     <th>Votes</th>
+    </tr>
+   </thead>
+   <tbody>
+    <tr>
+     <td>0</td>   
+     <td>Rama</td>
+     <td id="candidate-1"></td>
+    </tr>
+    <tr>
+     <td>1</td>      
+     <td>Nick</td>
+     <td id="candidate-2"></td>
+    </tr>
+    <tr>
+     <td>2</td>   
+     <td>Jose</td>
+     <td id="candidate-3"></td>
+    </tr>
+   </tbody>
+  </table>
+ </div>
+ <input type="text" id="candidate" />
+ <a href="#" onclick="voteForCandidate()" class="btn btn-primary">Vote</a>
+</body>
+<script charset="utf-8"
+        src="https://cdn.ethers.io/scripts/ethers-v4.min.js"
+        type="text/javascript">
+</script>
+<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>
+<script>
+    var abi = [
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"name": "party",
+				"type": "string"
+			}
+		],
+		"name": "addCandidate",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "candidateID",
+				"type": "uint256"
+			}
+		],
+		"name": "vote",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "candidateID",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "_name",
+				"type": "string"
+			}
+		],
+		"name": "AddedCandidate",
+		"type": "event"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "candidateID",
+				"type": "uint256"
+			}
+		],
+		"name": "getCandidate",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getNumOfCandidates",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getNumOfVoters",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "candidateID",
+				"type": "uint256"
+			}
+		],
+		"name": "totalVotes",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+
+provider = new ethers.providers.Web3Provider(web3.currentProvider);
+signer = provider.getSigner(0);
+contract = new ethers.Contract('0xf8201Cb292B4D504973C49B8142761D08D4b451d', abi, signer);
+
+candidates = {"0": "candidate-1", "1": "candidate-2", "2": "candidate-3"};
+
+function voteForCandidate(candidate) {
+ candidateId = $("#candidate").val();
+  console.log(candidateId);
+
+  contract.vote(ethers.utils.formatBytes32String(candidateId)).then((f) => {
+    let div_id = candidates[candidateId];
+    contract.totalVotesFor(ethers.utils.formatBytes32String(candidateId)).then((f) => {
+      $("#" + div_id).html(f);
+    })
+  });
+}
+
+$(document).ready(function() {
+  
+ candidateIds = Object.keys(candidates);
+
+ for(var i=0; i<candidateIds.length; i++) {
+  let id = candidateIds[i];
+  contract.totalVotesFor(ethers.utils.formatBytes32String(id)).then((f) => {
+    $("#" + candidates[id]).html(f);
+  })
+ }
+});
+
+</script>
+</html>
